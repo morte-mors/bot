@@ -2,6 +2,7 @@ const comandos = require('./commands.js')
 const canais = require('./channels.js')
 const tmi = require('tmi.js');
 require('dotenv').config();
+const express = require('express');
 
 // Define configuration options
 const opts = {
@@ -64,3 +65,5 @@ function rollDice (quantidade, lados) {
 function onConnectedHandler (addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
+
+express().listen(process.env.PORT || 5433)
