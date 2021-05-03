@@ -1,6 +1,7 @@
 const comandos = require('./commands.js')
 const canais = require('./channels.js')
 const tmi = require('tmi.js');
+require('dotenv').config();
 
 // Define configuration options
 const opts = {
@@ -23,7 +24,7 @@ client.connect();
 
 // Called every time a message comes in
 function onMessageHandler (target, context, msg, self) {
-  console.log(target, context, msg, self)
+  console.log(opts)
   if (self) { return; } // Ignore messages from the bot
 
   // Remove whitespace from chat message
@@ -46,12 +47,7 @@ function onMessageHandler (target, context, msg, self) {
     const num = rollDice(1,4);
     client.say(target, `Voce tirou ${num} no ${commandName.replace('!','')}.`);
   }
-  if (comandos[commandName]) {
-    client.whisper(target, "teste").then((data) => {
-      console.log(data)
-    }).catch((err) => {
-      console.log("erro")
-    });
+  if (comandos[commandName]) {    
     client.say(target, comandos[commandName]);
   } else {
     console.log(`* Unknown command ${commandName}`);
