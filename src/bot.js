@@ -1,8 +1,9 @@
 const comandos = require('./commands.js')
 const canais = require('./channels.js')
 const tmi = require('tmi.js');
-require('dotenv').config();
 const express = require('express');
+require('./database')
+require('dotenv').config();
 
 // Define configuration options
 const opts = {
@@ -66,4 +67,4 @@ function onConnectedHandler (addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
 
-express().listen(process.env.PORT || 5433)
+express().listen(process.env.PORT || 5433) 

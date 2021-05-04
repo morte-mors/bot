@@ -4,7 +4,8 @@
   "description": "A simple app chatbot example. Using the command !echo will simply repeat the message.",
   "main": "bot.js",
   "scripts": {
-    "start": "set NODE_ENV=dev && node bot.js"
+    "dev": "nodemon src/bot.js",
+    "start": "sucrase-node src/bot.js"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
@@ -12,6 +13,7 @@
     "pg": "^8.6.0",
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.6.2",
+    "sucrase": "^3.18.1",
     "tmi.js": "^1.2.1"
   },
   "engines": {
@@ -27,6 +29,7 @@
     "irc"
   ],
   "devDependencies": {
-    "sequelize-cli": "^6.2.0"
+    "sequelize-cli": "^6.2.0",
+    "nodemon": "^2.0.7"
   }
 }
