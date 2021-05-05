@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import Channels from '../app/models/channels';
+import Channels from '../app/models/Channels';
 import databaseConfig from '../config/database'
 
 const models = [Channels];

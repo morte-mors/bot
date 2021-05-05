@@ -1,1 +1,1 @@
-module.exports = [ 'morte_mors']
+module.exports = ['vida_bot' ]

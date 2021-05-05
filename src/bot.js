@@ -1,10 +1,11 @@
 const comandos = require('./commands.js')
-const canais = require('./channels.js')
 const tmi = require('tmi.js');
 const express = require('express');
 require('./database')
 require('dotenv').config();
-
+import ChannelsControllers from './app/controllers/ChannelsControllers';
+const commandChannel = ['vida_bot', 'morte_mors']
+const canais = require('./channels.js')
 // Define configuration options
 const opts = {
   identity: {
@@ -14,8 +15,10 @@ const opts = {
   channels: canais
 };
 
+const commandOpts = opts
+commandOpts.channels = commandChannel
 // Create a client with our options
-const client = new tmi.client(opts);
+const client = new tmi.client(commandOpts);
 
 // Register our event handlers (defined below)
 client.on('message', onMessageHandler);
@@ -33,6 +36,20 @@ function onMessageHandler (target, context, msg, self) {
   const commandName = msg.trim().toLowerCase();
 
   // If the command is known, let's execute it
+  var promises = []
+  if (commandName === '!entrar') {
+    const fnAtrasada = async() => await new Promise(res => {
+      res(ChannelsControllers.store(context.username)); //atrasado
+    });
+    
+    fnAtrasada().then(string => client.say(target, `${string}`));
+    client.join(context.username)
+  }
+  if (commandName === '!sair') {
+    ChannelsControllers.delete(context.username)
+    client.part(context.username)
+    client.say(target, `Sai do seu canal @${context.username}`); 
+  }
   if (commandName === '!d20') {
     const num = rollDice(1,20);
     client.say(target, `Voce tirou ${num} no ${commandName.replace('!','')}.`);
