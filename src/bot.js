@@ -58,6 +58,10 @@ function onMessageHandler (target, context, msg, self) {
     const num = rollDice(1,10);
     client.say(target, `Voce tirou ${num} no ${commandName.replace('!','')}.`);
   }
+  if (commandName === '!d8') {
+    const num = rollDice(1,10);
+    client.say(target, `Voce tirou ${num} no ${commandName.replace('!','')}.`);
+  }
   if (commandName === '!d6') {
     const num = rollDice(1,6);
     client.say(target, `Voce tirou ${num} no ${commandName.replace('!','')}.`);
