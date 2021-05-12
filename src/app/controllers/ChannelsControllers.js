@@ -20,16 +20,12 @@ class ChannelsControllers {
     if(channel){
         channel.destroy()
     } 
-    return 'Ja sai do seu canal @' + username + ', estarei aqui quando precisar!'
+    return 'Ja sai do seu canal @' + username + ', starei aqui quando precisar!'
   }
 
-  async searchAll() {
+  async findAll() {
     var channel = await Channels.findAll()
-    console.log('canal', channel[0].channel_name)
-    var channels = channel.map(function(chan) {
-      return chan.channel_name
-    })
-    return channels[0] + 'como?'
+    return channel
   }
 }
 export default new ChannelsControllers();
