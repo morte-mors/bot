@@ -3,7 +3,6 @@ const tmi = require('tmi.js');
 const express = require('express');
 require('./database')
 require('dotenv').config();
-import e, { response } from 'express';
 import ChannelsControllers from './app/controllers/ChannelsControllers';
 const commandChannel = ['vida_bot']
 var canais = []
@@ -93,7 +92,11 @@ function onMessageHandler (target, context, msg, self) {
   // Remove whitespace from chat message
   const commandName = msg.trim().toLowerCase();
 
-  
+  if (comandos[commandName]) {    
+    client.say(target, comandos[commandName]);
+  } else {
+    console.log(`* Unknown command ${commandName}`);
+  }
 }
 
 function onDadoOnlineMessageHandler (target, context, msg, self) {
