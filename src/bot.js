@@ -33,10 +33,10 @@ const commandOpts = {
 };
 const dadoOnlineOpts = {
   identity: {
-    username: process.env.BOT_USERNAME,
-    password: process.env.OAUTH_TOKEN
+    username: process.env.DADO_BOT_USERNAME,
+    password: process.env.DADO_OAUTH_TOKEN
   },
-  channels: ['dadoonline']
+  channels: ['dadoonline', 'morte_mors']
 };
 // Create a client with our options
 
@@ -79,9 +79,9 @@ function onCommandMessageHandler (target, context, msg, self) {
     commandClient.part(context.username)
     commandClient.say(target, `Sai do seu canal @${context.username}`); 
   }
-  if (commandName === '!adicionar') {
-    commandClient.part(context.username)
-    commandClient.say(target, `Sai do seu canal @${context.username}`); 
+  if (commandName.match(/^!adicionar/)) {
+    var newCommand = commandName.replace(/\s+/,' ').replace(/^!adicionar\s+/, '')
+    commandClient.say(target, `Qual será a resposta para o comando ${newCommand}`); 
   }
 }
 
@@ -94,8 +94,6 @@ function onMessageHandler (target, context, msg, self) {
 
   if (comandos[commandName]) {    
     client.say(target, comandos[commandName]);
-  } else {
-    console.log(`* Unknown command ${commandName}`);
   }
 }
 
@@ -107,19 +105,19 @@ function onDadoOnlineMessageHandler (target, context, msg, self) {
   const commandName = msg.trim().toLowerCase();
 
   // If the command is known, let's execute it
-  if(commandName.match(/^!\d+d\d+/)) {
-    const num = rollagem(commandName)
-    client.say(target, `${num}`);
+  if(commandName.match(/^!\d*d\d+/)) {
+    const num = rollagem(commandName.replace(/^!d/, '!1d'))
+    dadoOnline.say(target, `${num}`);
   }
   
-  if(commandName.match(/^!\d+#\d+d\d+/)) {
+  if(commandName.match(/^!\d+#\d*d\d+/)) {
     const vezes = commandName.match(/^!\d+/)
     vezes[0] = vezes[0].replace('!','')
-    var roll = commandName.replace(/^!\d+#/,'!')
+    var roll = commandName.replace(/^!\d+#/,'!').replace(/^!d/, '!1d')
     if(parseInt(vezes[0]) < 10 ){
       for (let index = 0; index < parseInt(vezes[0]); index++) {
         const num = rollagem(roll)
-        client.say(target, `${index+1}# ${num}`);
+        dadoOnline.say(target, `${index+1}# ${num}`);
       }
     }
   }
