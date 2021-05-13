@@ -81,7 +81,7 @@ function onCommandMessageHandler (target, context, msg, self) {
   }
   if (commandName.match(/^!adicionar/)) {
     var newCommand = commandName.replace(/\s+/,' ').replace(/^!adicionar\s+/, '')
-    commandClient.say(target, `Qual será a resposta para o comando ${newCommand}`); 
+    commandClient.say(target, `Qual será a resposta para o comando ${newCommand}`);
   }
 }
 
@@ -106,14 +106,14 @@ function onDadoOnlineMessageHandler (target, context, msg, self) {
 
   // If the command is known, let's execute it
   if(commandName.match(/^!\d*d\d+/)) {
-    const num = rollagem(commandName.replace(/^!d/, '!1d'))
+    const num = rollagem(commandName.replace(/^!d/, '!1d')).replace(/[+]d/,'1d').replace(/[-]d/,'1d')
     dadoOnline.say(target, `${num}`);
   }
   
   if(commandName.match(/^!\d+#\d*d\d+/)) {
     const vezes = commandName.match(/^!\d+/)
     vezes[0] = vezes[0].replace('!','')
-    var roll = commandName.replace(/^!\d+#/,'!').replace(/^!d/, '!1d')
+    var roll = commandName.replace(/^!\d+#/,'!').replace(/^!d/, '!1d').replace(/[+]d/,'1d').replace(/[-]d/,'1d')
     if(parseInt(vezes[0]) < 10 ){
       for (let index = 0; index < parseInt(vezes[0]); index++) {
         const num = rollagem(roll)
