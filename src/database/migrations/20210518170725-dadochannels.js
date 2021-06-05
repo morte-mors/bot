@@ -2,8 +2,8 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    return queryInterface.createTable('commands', {
-      id: {
+    return queryInterface.createTable('dadochannels', {
+    id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
@@ -12,20 +12,8 @@ module.exports = {
       channel_name: {
         type: Sequelize.STRING,
       },
-      name: {
+      twitch_id: {
         type: Sequelize.STRING,
-      },
-      alias: {
-        type: Sequelize.STRING,
-      },
-      replyText: {
-        type: Sequelize.STRING,
-      },
-      requiredRole: {
-        type: Sequelize.STRING,
-      },
-      enabled: {
-        type: Sequelize.BOOLEAN,
       },
       created_at: {
         type: Sequelize.DATE,
@@ -39,6 +27,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('commands')
+    return queryInterface.dropTable('dadochannels')
   }
 };

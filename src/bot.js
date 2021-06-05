@@ -1,29 +1,31 @@
-const comandos = require('./commands.js')
-const tmi = require('tmi.js');
-const express = require('express');
+import comandos from './commands.js';
+import tmi from 'tmi.js';
+import express from 'express';
 require('./database')
 require('dotenv').config();
 import ChannelsControllers from './app/controllers/ChannelsControllers';
-const commandChannel = ['vida_bot']
-var canais = []
+import DadoChannelsControllers from './app/controllers/DadoChannelsControllers';
+import MessagesControllers from './app/controllers/MessagesControllers';
 
-const fnAtrasada2 = async() => await new Promise(res => {
-  res(ChannelsControllers.findAll()); //atrasado
+const commandChannel = [process.env.BOT_USERNAME, process.env.DADO_BOT_USERNAME]
+let canais = []
+let dadoCanais = []
+
+
+const loadChannels = async() => await new Promise(res => {
+  const chan = ChannelsControllers.findAll()
+  res(chan);
+});
+const loadDadoChannels = async() => await new Promise(res => {
+  const chan = DadoChannelsControllers.findAll()
+  res(chan);
 });
 
-fnAtrasada2().then(string => {
+loadChannels().then(string1 => {loadDadoChannels().then(string => {
   canais = string.map(function(chan) {return chan.channel_name})  
-  console.log(canais)
-  
-
+  dadoCanais = string1.map(function(chan) {return chan.channel_name})  
+  console.log(canais, dadoCanais)
 // Define configuration options
-const opts = {
-  identity: {
-    username: process.env.BOT_USERNAME,
-    password: process.env.OAUTH_TOKEN
-  },
-  channels: canais
-};
 const commandOpts = {
   identity: {
     username: process.env.BOT_USERNAME,
@@ -31,6 +33,31 @@ const commandOpts = {
   },
   channels: commandChannel
 };
+const commandClient = new tmi.client(commandOpts);
+commandClient.on('message', onCommandMessageHandler);
+commandClient.on('connected', onConnectedHandler);
+commandClient.connect();
+
+
+const opts = {
+  connection: {
+    secure: true,
+    reconnect: true
+  },
+  identity: {
+    username: process.env.BOT_USERNAME,
+    password: process.env.OAUTH_TOKEN
+  },
+  channels: canais
+};
+const client = new tmi.client(opts);
+client.on('message', onMessageHandler);
+client.on('connected', onConnectedHandler);
+client.connect();
+
+
+
+
 const dadoOnlineOpts = {
   identity: {
     username: process.env.DADO_BOT_USERNAME,
@@ -38,46 +65,53 @@ const dadoOnlineOpts = {
   },
   channels: ['dadoonline', 'morte_mors']
 };
-// Create a client with our options
-
-const commandClient = new tmi.client(commandOpts);
 const dadoOnline = new tmi.client(dadoOnlineOpts);
-const client = new tmi.client(opts);
-
-// Register our event handlers (defined below)
-client.on('message', onMessageHandler);
-client.on('connected', onConnectedHandler);
-commandClient.on('message', onCommandMessageHandler);
-commandClient.on('connected', onConnectedHandler);
 dadoOnline.on('message', onDadoOnlineMessageHandler);
 dadoOnline.on('connected', onConnectedHandler);
-// Connect to Twitch:
-client.connect();
-commandClient.connect();
 dadoOnline.connect();
 
 // Called every time a message comes in
 function onCommandMessageHandler (target, context, msg, self) {
-  console.log(opts)
   if (self) { return; } // Ignore messages from the bot
+  // Remove whitespace from chat message and transform into lowecase
+  const commandName = msg.trim().toLowerCase(); 
 
-  // Remove whitespace from chat message
-  const commandName = msg.trim().toLowerCase();
-
+  
   // If the command is known, let's execute it
   if (commandName === '!entrar') {
-    const fnAtrasada = async() => await new Promise(res => {
-      res(ChannelsControllers.store(context.username)); //atrasado
-    });
+    if(target == `#${process.env.BOT_USERNAME}`) {
+      const storeChannel = async() => await new Promise(res => {
+        res(ChannelsControllers.store(context.username, context['user-id'])); //atrasado
+      });
+      
+      storeChannel().then(string => commandClient.say(target, `${string}`));
+      client.join(context.username)
+    } else if (target == `#${process.env.DADO_BOT_USERNAME}`) {
+      const storeChannel = async() => await new Promise(res => {
+        res(DadoChannelsControllers.store(context.username, context['user-id'])); //atrasado
+      });
+      
+      storeChannel().then(string => dadoOnline.say(target, `${string}`));
+      dadoOnline.join(context.username)
+    }
     
-    fnAtrasada().then(string => client.say(target, `${string}`));
-    commandClient.join(context.username)
   }
 
   if (commandName === '!sair') {
-    ChannelsControllers.delete(context.username)
-    commandClient.part(context.username)
-    commandClient.say(target, `Sai do seu canal @${context.username}`); 
+    if(target == `#${process.env.BOT_USERNAME}`) {
+      const deleteChannel = async() => await new Promise(res => {
+        res(ChannelsControllers.delete(context.username, context['user-id'])); //atrasado
+      });
+      deleteChannel().then(string => client.say(target, `${string}`));
+      client.part(context.username)
+    } else if (target == `#${process.env.DADO_BOT_USERNAME}`) {
+      const deleteChannel = async() => await new Promise(res => {
+        res(DadoChannelsControllers.delete(context.username, context['user-id'])); //atrasado
+      });
+      deleteChannel().then(string => dadoOnline.say(target, `${string}`));
+      dadoOnline.part(context.username)
+    }
+    
   }
   if (commandName.match(/^!adicionar/)) {
     var newCommand = commandName.replace(/\s+/,' ').replace(/^!adicionar\s+/, '')
@@ -85,10 +119,15 @@ function onCommandMessageHandler (target, context, msg, self) {
   }
 }
 
-function onMessageHandler (target, context, msg, self) {
 
+
+
+function onMessageHandler (target, context, msg, self) {
   if (self) { return; } // Ignore messages from the bot
 
+  const ignore = {'morte_mors': false} //list of ignored users
+  if(ignore[context.username]) {return}
+  MessagesControllers.store({target, context, msg})
   // Remove whitespace from chat message
   const commandName = msg.trim().toLowerCase();
 
@@ -97,24 +136,25 @@ function onMessageHandler (target, context, msg, self) {
   }
 }
 
+
 function onDadoOnlineMessageHandler (target, context, msg, self) {
-
   if (self) { return; } // Ignore messages from the bot
-
+  console.log()
+  
   // Remove whitespace from chat message
   const commandName = msg.trim().toLowerCase();
 
   // If the command is known, let's execute it
   if(commandName.match(/^!\d*d\d+/)) {
-    const num = rollagem(commandName.replace(/^!d/, '!1d')).replace(/[+]d/,'1d').replace(/[-]d/,'1d')
+    const num = rollagem(commandName.replace(/^!d/, '!1d').replace(/[+]d/g,'+1d').replace(/[-]d/g,'-1d'))
     dadoOnline.say(target, `${num}`);
   }
   
   if(commandName.match(/^!\d+#\d*d\d+/)) {
     const vezes = commandName.match(/^!\d+/)
     vezes[0] = vezes[0].replace('!','')
-    var roll = commandName.replace(/^!\d+#/,'!').replace(/^!d/, '!1d').replace(/[+]d/,'1d').replace(/[-]d/,'1d')
-    if(parseInt(vezes[0]) < 10 ){
+    var roll = commandName.replace(/^!\d+#/,'!').replace(/^!d/, '!1d').replace(/[+]d/,'+1d').replace(/[-]d/,'-1d')
+    if(parseInt(vezes[0]) < 6 ){
       for (let index = 0; index < parseInt(vezes[0]); index++) {
         const num = rollagem(roll)
         dadoOnline.say(target, `${index+1}# ${num}`);
@@ -131,7 +171,6 @@ function rollagem (str){
   var ocorrencias = 0
   str = str.replace(/\s*/g,'').replace(/!/,'+')
   while(str.match(/[+-]\d*d\d+/) || str.match(/[+-]\d+/)){
-    console.log(str)
     if (str.match(/[+-]\d*d\d+/)) {
       var parcial = str.match(/[+-]\d*d\d+/)
       var sinal = parcial[0].match(/[+-]/)
@@ -175,7 +214,7 @@ function rollagem (str){
 function onConnectedHandler (addr, port) {
   console.log(`* Connected to ${addr}:${port}`);
 }
-});
+})});
 function rollDice (quantidade, lados) {
   const sides = lados
   var resultado = 0

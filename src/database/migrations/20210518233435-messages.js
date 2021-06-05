@@ -2,18 +2,15 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    return queryInterface.createTable('channels', {
+    return queryInterface.createTable('messages', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
       },
-      channel_name: {
-        type: Sequelize.STRING,
-      },
-      twitch_id: {
-        type: Sequelize.STRING,
+      message: {
+        type: Sequelize.JSONB,
       },
       created_at: {
         type: Sequelize.DATE,
@@ -27,6 +24,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('channels')
+    return queryInterface.dropTable('messages')
   }
 };

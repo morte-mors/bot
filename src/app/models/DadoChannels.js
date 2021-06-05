@@ -1,14 +1,14 @@
 import Sequelize, { Model } from 'sequelize';
 
-class Channels extends Model {
+class DadoChannels extends Model {
   static init(sequelize){
     super.init({
       channel_name:  Sequelize.STRING,
       twitch_id:  Sequelize.STRING,
     },{
       sequelize,
-      tableName: 'channels'
+      tableName: 'dadochannels'
     })
   }
 }
-export default Channels;
+export default DadoChannels;

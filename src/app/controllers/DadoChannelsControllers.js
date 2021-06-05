@@ -1,9 +1,9 @@
-import Channels from '../models/Channels'
+import DadoChannels from '../models/DadoChannels'
 
-class ChannelsControllers {
+class DadoChannelsControllers {
 
   async store(username, userId) {
-    var channel = await Channels.findOne({where: {twitch_id: userId}})
+    var channel = await DadoChannels.findOne({where: {twitch_id: userId}})
     if(channel){
       if(channel.channel_name === username){
         return 'Eu ja estava no seu canal @' + channel.channel_name + '!'
@@ -13,7 +13,8 @@ class ChannelsControllers {
         return 'Seu usuário foi atualizado para @' + channel.channel_name + '!'
       }
     } else {
-      Channels.create({
+      console.log('17')
+      DadoChannels.create({
         channel_name: username,
         twitch_id: userId
       })
@@ -22,18 +23,16 @@ class ChannelsControllers {
   }
 
   async delete(username, userId) {
-    var channel = await Channels.findOne({where: {twitch_id: userId}})
+    var channel = await DadoChannels.findOne({where: {twitch_id: userId}})
     if(channel){
-      channel.destroy()
-      return 'Ja sai do seu canal @' + username + ', estarei aqui quando precisar!'
-    } else {
-      return 'Eu não estava no seu canal @' + username
-    }
+        channel.destroy()
+    } 
+    return 'Ja sai do seu canal @' + username + ', estarei aqui quando precisar!'
   }
 
   async findAll() {
-    var channel = await Channels.findAll()
+    var channel = await DadoChannels.findAll()
     return channel
   }
 }
-export default new ChannelsControllers();
+export default new DadoChannelsControllers();
