@@ -63,7 +63,7 @@ const dadoOnlineOpts = {
     username: process.env.DADO_BOT_USERNAME,
     password: process.env.DADO_OAUTH_TOKEN
   },
-  channels: ['dadoonline', 'morte_mors']
+  channels: dadoCanais
 };
 const dadoOnline = new tmi.client(dadoOnlineOpts);
 dadoOnline.on('message', onDadoOnlineMessageHandler);
